@@ -1,0 +1,61 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.8.RELEASE")
+        classpath("org.thymeleaf:thymeleaf:3.0.11.RELEASE")
+        classpath("au.com.dius:pact-jvm-provider-gradle:4.0.3")
+    }
+}
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  repositories {
+     mavenCentral()
+  }
+}
+
+subprojects {
+  apply plugin: 'org.springframework.boot'
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  dependencies {
+      implementation("org.springframework.boot:spring-boot-starter-web")
+      implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+      implementation("org.springframework.boot:spring-boot-devtools")
+      testImplementation('org.springframework.boot:spring-boot-starter-test')
+      testImplementation("junit:junit")
+      testImplementation("au.com.dius:pact-jvm-consumer-junit:4.0.3")
+      testImplementation("au.com.dius:pact-jvm-consumer-java8:4.0.3")
+  }
+
+}
+
+project(':example-consumer') {
+    version '1.0.0'
+    apply plugin: 'au.com.dius.pact'
+
+    jar {
+        archiveBaseName = 'example-consumer'
+        archiveVersion =  '1.0.0'
+    }
+
+    test {
+        systemProperties['pact.rootDir'] = "$rootDir/Pacts"
+    }
+
+    pact {
+        publish {
+            pactDirectory = "$rootDir/Pacts"
+
+            pactBrokerUrl = mybrokerUrl
+            pactBrokerUsername = mybrokerUser
+            pactBrokerPassword = mybrokerPassword
+        }
+    }
+}
